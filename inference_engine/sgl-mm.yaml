@@ -1,0 +1,134 @@
+# Serve multiple LLMs at once
+# Note: Each SGLang container launches only one model
+
+x-log: &fluentd-log
+  driver: fluentd
+  options:
+    fluentd-address: localhost:24224
+    tag: sglang.model-name
+
+
+services:
+  sgl_qwen-qwq-32b-awq:
+    extends:
+      file: sgl-cfg.yaml
+      service: base_sgl
+    container_name: sgl_qwen-qwq-32b-awq
+    command: 
+      - "--model-path"
+      - "/root/.cache/huggingface/models--Qwen--QwQ-32B-AWQ/snapshots/core"
+      - "--served-model-name"
+      - "Qwen/QwQ-32B-AWQ"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "30000"
+      - "--mem-fraction-static"
+      - "0.7"
+      - "--enable-metrics"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["1"]
+              capabilities: ["gpu"]
+    logging:
+      <<: *fluentd-log
+      options: {tag: sglang.qwen-qwq-32b-awq}
+
+  sgl_gte-qwen2-1.5b:
+    extends:
+      file: sgl-cfg.yaml
+      service: base_sgl
+    container_name: sgl_gte-qwen2-1.5b
+    command: 
+      - "--model-path"
+      - "/root/.cache/huggingface/models--Alibaba-NLP--gte-Qwen2-1.5B-instruct/snapshots/core"
+      - "--served-model-name"
+      - "Alibaba-NLP/gte-Qwen2-1.5B-instruct"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "30001"
+      - "--is-embedding"
+      - "--mem-fraction-static"
+      - "0.2"
+      - "--enable-metrics"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["2"]
+              capabilities: ["gpu"]
+    logging:
+      <<: *fluentd-log
+      options: {tag: sglang.gte-qwen2-1.5}
+    
+  sgl_ds-r1-32b-awq:
+    extends:
+      file: sgl-cfg.yaml
+      service: base_sgl
+    container_name: sgl_ds-r1-32b-awq
+    command: 
+      - "--model-path"
+      - "/root/.cache/huggingface/models--Valdemardi--DeepSeek-R1-Distill-Qwen-32B-AWQ/snapshots/core"
+      - "--served-model-name"
+      - "Valdemardi/DeepSeek-R1-Distill-Qwen-32B-AWQ"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "30002"
+      - "--mem-fraction-static"
+      - "0.7"
+      - "--enable-metrics"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["2"]
+              capabilities: ["gpu"]
+    logging:
+      <<: *fluentd-log
+      options: {tag: sglang.ds-r1-32b-awq}
+
+  sgl_qwen2.5-vl-72b-awq:
+    extends:
+      file: sgl-cfg.yaml
+      service: base_sgl
+    container_name: sgl_qwen2.5-vl-72b-awq
+    command: 
+      - "--model-path"
+      - "/root/.cache/huggingface/models--Qwen--Qwen2.5-VL-72B-Instruct-AWQ/snapshots/core"
+      - "--served-model-name"
+      - "Qwen/Qwen2.5-VL-72B-Instruct-AWQ"
+      - "--host"
+      - "0.0.0.0"
+      - "--port"
+      - "30003"
+      - "--chat-template"
+      - "qwen2-vl"
+      - "--enable-metrics"
+      - "--mem-fraction-static"
+      - "0.6"
+      - "--chunked-prefill-size"
+      - "-1"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["3"]
+              capabilities: ["gpu"]
+    logging:
+      <<: *fluentd-log
+      options: {tag: sglang.qwen2.5-vl-72b-awq}
+
+
+networks:
+  sgl_ngx:
+    # The network is share between SGLang containers and a reverse proxy server.
+    # Remember to manually create the network beforehand.
+    external: true

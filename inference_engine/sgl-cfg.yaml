@@ -1,0 +1,22 @@
+# Base Compose of SGLang services
+
+services:
+  base_sgl:
+    image: jwj/sglang:0.4.3.post4-cu121
+    pull_policy: never
+    restart: always
+    networks:
+      - sgl_ngx
+    volumes:
+      - /root/.cache/huggingface:/root/.cache/huggingface
+    entrypoint: python3 -m sglang.launch_server
+    ipc: host
+
+    # Specify common GPU resource visibility
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           device_ids: ["0", "1"]
+    #           capabilities: ["gpu"]

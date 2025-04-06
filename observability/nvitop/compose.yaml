@@ -1,0 +1,41 @@
+name: gpu-proc-mgmt
+
+
+# GPU resource extension
+x-gpu-deploy: &gpu-rsc
+  resources:
+    reservations:
+      devices:
+        - driver: nvidia
+          count: "all"
+          capabilities: ["gpu"]
+
+
+services:
+  nvitop-gui:
+    image: jwj/nvitop:1.3.2
+    container_name: nvitop
+    pull_policy: never
+    restart: always
+    runtime: nvidia
+    deploy: *gpu-rsc
+    pid: host
+    stdin_open: true
+    tty: true
+
+  nvitop-exporter:
+    image: jwj/nvitop-exporter:0.2
+    container_name: nvitop-exporter
+    pull_policy: never
+    restart: always
+    networks:
+      - sgl_ngx
+    runtime: nvidia
+    deploy: *gpu-rsc
+    pid: host
+
+
+networks:
+  sgl_ngx:
+    external: true
+  

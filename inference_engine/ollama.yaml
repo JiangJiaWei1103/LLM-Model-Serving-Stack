@@ -1,0 +1,28 @@
+# Serve Ollama for quick POC
+
+services:
+  ollama_public:
+    image: jwj/ollama:0.6.2
+    container_name: ollama_public
+    pull_policy: never
+    restart: always
+    ports:
+      - 80:11434
+    volumes:
+      - /root/.ollama:/root/.ollama
+      - /root/userap/workspace/gguf:/root/gguf
+    tty: true
+    environment:
+      OLLAMA_DEBUG: 1
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              device_ids: ["0"]
+              capabilities: ["gpu"]
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: localhost:24224
+        tag: ollama

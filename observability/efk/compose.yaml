@@ -1,0 +1,48 @@
+# Improve observability with the EFK stack
+
+services:
+  elasticsearch:
+    image: jwj/elasticsearch:8.17.2
+    pull_policy: never
+    container_name: elasticsearch
+    restart: always
+    ports:
+      - "8101:9200"
+    volumes:
+      # Change permission of the folder to make it writable
+      - ./esdata:/bitnami/elasticsearch/data
+    environment:
+      - discovery.type=single-node
+      - transport.host=127.0.0.1
+      # - ELASTIC_PASSWORD=secret
+
+  fluentd:
+    image: jwj/fluentd:1.18.0
+    pull_policy: never
+    container_name: fluentd
+    restart: always
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./fluentd.conf:/fluentd/etc/fluentd.conf
+    ports:
+      - "24224:24224"
+      - "24224:24224/udp"
+    environment:
+      - ELASTICSEARCH_HOSTNAME=elasticsearch
+      - ELASTICSEARCH_PORT=9200
+    command: ["fluentd", "-c", "/fluentd/etc/fluentd.conf"]
+
+  kibana:
+    image: jwj/kibana:8.17.2
+    pull_policy: never
+    container_name: kibana
+    restart: always
+    ports:
+      - "8102:5601"
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      # - ELLASTICSEARCH_USERNAME=elastic
+      # - ELASTICSEARCH_PASSWORD=secret

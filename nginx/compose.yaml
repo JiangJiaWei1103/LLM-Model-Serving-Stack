@@ -1,0 +1,21 @@
+# Start a reverse proxy for SGLang services
+
+services:
+  sgl_ngx:
+    image: jwj/nginx:1.24.0
+    container_name: sgl_ngx
+    pull_policy: never
+    restart: always
+    networks:
+      - sgl_ngx
+    ports:
+      - "8100:80"
+    volumes:
+      # Put nginx.conf under the same dir as this Compose file
+      - ${PWD}:/etc/nginx
+
+
+networks:
+  sgl_ngx:
+    external: true
+    
