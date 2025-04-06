@@ -8,8 +8,7 @@ Deploy a multi-tenancy LLM model serving stack in an air-gapped environment with
 
 
 ## An Overly Simple Arch
-![](https://github.com/JiangJiaWei1103/LLM-Model-Serving-Stack/tree/main/assets/model_serving_arch.png)
-
+![](./assets/model_serving_arch.png)
 
 ## Todos
 * [ ] Modularize and clean up the ugly `nginx.conf` for readability and maintainability
