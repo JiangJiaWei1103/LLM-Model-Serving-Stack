@@ -1,2 +1,7 @@
+__pycache__/
+
 *.drawio
 *.drawio.bkp
+*.json
+
+benchmark/download_data.py
